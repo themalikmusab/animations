@@ -628,70 +628,84 @@ class ProjectileMotionApp {
      * Render the simulation scene
      */
     render() {
-        // Update visual systems
-        this.renderer.update(this.currentProjectile);
+        try {
+            // Update visual systems (pass null if no current projectile)
+            this.renderer.update(this.currentProjectile || null);
 
-        this.renderer.clear();
-        this.renderer.drawBackground();
-        this.renderer.drawGrid();
+            this.renderer.clear();
+            this.renderer.drawBackground();
+            this.renderer.drawGrid();
 
-        // Draw particles behind projectiles
-        this.renderer.drawParticles();
+            // Draw particles behind projectiles
+            this.renderer.drawParticles();
 
-        this.renderer.drawCannon(this.params.angle);
+            this.renderer.drawCannon(this.params.angle);
 
-        // Draw prediction
-        if (this.showPrediction) {
-            this.trajectoryPredictor.drawPrediction(this.params, this.showPrediction);
-        }
-
-        // Draw all projectiles
-        this.projectiles.forEach(projectile => {
-            if (projectile) {
-                this.renderer.drawTrajectory(projectile, this.showTrajectory);
-                this.renderer.drawProjectile(projectile);
-                if (projectile === this.currentProjectile) {
-                    this.renderer.drawVectors(projectile, this.showVectors);
-                }
+            // Draw prediction
+            if (this.showPrediction) {
+                this.trajectoryPredictor.drawPrediction(this.params, this.showPrediction);
             }
-        });
 
-        // Draw tape measure
-        this.tapeMeasure.draw();
+            // Draw all projectiles
+            this.projectiles.forEach(projectile => {
+                if (projectile) {
+                    this.renderer.drawTrajectory(projectile, this.showTrajectory);
+                    this.renderer.drawProjectile(projectile);
+                    if (projectile === this.currentProjectile) {
+                        this.renderer.drawVectors(projectile, this.showVectors);
+                    }
+                }
+            });
 
-        // Draw performance stats (if enabled)
-        this.renderer.drawPerformanceStats();
+            // Draw tape measure
+            this.tapeMeasure.draw();
+
+            // Draw performance stats (if enabled)
+            this.renderer.drawPerformanceStats();
+        } catch (error) {
+            console.error('Render error:', error);
+            // Try to recover by just drawing background
+            this.renderer.clear();
+            this.renderer.drawBackground();
+        }
     }
 
     /**
      * Render target practice mode
      */
     renderTargetMode() {
-        // Update visual systems
-        this.targetRenderer.update(this.currentProjectile);
+        try {
+            // Update visual systems
+            this.targetRenderer.update(this.currentProjectile || null);
 
-        this.targetRenderer.clear();
-        this.targetRenderer.drawBackground();
-        this.targetRenderer.drawGrid();
+            this.targetRenderer.clear();
+            this.targetRenderer.drawBackground();
+            this.targetRenderer.drawGrid();
 
-        // Draw particles
-        this.targetRenderer.drawParticles();
+            // Draw particles
+            this.targetRenderer.drawParticles();
 
-        this.targetRenderer.drawCannon(this.params.angle);
+            this.targetRenderer.drawCannon(this.params.angle);
 
-        // Draw targets
-        this.targetSystem.draw();
+            // Draw targets
+            this.targetSystem.draw();
 
-        // Draw projectiles
-        this.projectiles.forEach(projectile => {
-            if (projectile) {
-                this.targetRenderer.drawTrajectory(projectile, this.showTrajectory);
-                this.targetRenderer.drawProjectile(projectile);
-            }
-        });
+            // Draw projectiles
+            this.projectiles.forEach(projectile => {
+                if (projectile) {
+                    this.targetRenderer.drawTrajectory(projectile, this.showTrajectory);
+                    this.targetRenderer.drawProjectile(projectile);
+                }
+            });
 
-        // Draw performance stats
-        this.targetRenderer.drawPerformanceStats();
+            // Draw performance stats
+            this.targetRenderer.drawPerformanceStats();
+        } catch (error) {
+            console.error('Target render error:', error);
+            // Fallback rendering
+            this.targetRenderer.clear();
+            this.targetRenderer.drawBackground();
+        }
     }
 
     /**

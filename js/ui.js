@@ -461,40 +461,45 @@ class Renderer {
      * Update particle system and visual effects
      */
     update(projectile) {
-        // Update particle system
-        if (this.particleSystem) {
-            this.particleSystem.update();
-        }
-
-        // Update camera
-        if (this.camera && projectile && projectile.isFlying) {
-            const pos = this.worldToScreen(projectile.state.x, projectile.state.y);
-            this.camera.trackProjectile(pos.x, pos.y);
-            this.camera.update();
-        }
-
-        // Update environment
-        if (this.environmentRenderer) {
-            this.environmentRenderer.update();
-        }
-
-        // Update performance monitor
-        if (this.performanceMonitor) {
-            this.performanceMonitor.update();
-        }
-
-        // Emit smoke trail if projectile is flying fast
-        if (this.particleSystem && projectile && projectile.isFlying) {
-            const velocity = projectile.getVelocity();
-            if (velocity > 5) {
-                const pos = this.worldToScreen(projectile.state.x, projectile.state.y);
-                this.particleSystem.smokeTrail.emit(
-                    pos.x,
-                    pos.y,
-                    projectile.state.vx,
-                    -projectile.state.vy
-                );
+        try {
+            // Update particle system
+            if (this.particleSystem) {
+                this.particleSystem.update();
             }
+
+            // Update camera
+            if (this.camera && projectile && projectile.isFlying) {
+                const pos = this.worldToScreen(projectile.state.x, projectile.state.y);
+                this.camera.trackProjectile(pos.x, pos.y);
+                this.camera.update();
+            }
+
+            // Update environment
+            if (this.environmentRenderer) {
+                this.environmentRenderer.update();
+            }
+
+            // Update performance monitor
+            if (this.performanceMonitor) {
+                this.performanceMonitor.update();
+            }
+
+            // Emit smoke trail if projectile is flying fast
+            if (this.particleSystem && projectile && projectile.isFlying) {
+                const velocity = projectile.getVelocity();
+                if (velocity > 5) {
+                    const pos = this.worldToScreen(projectile.state.x, projectile.state.y);
+                    this.particleSystem.smokeTrail.emit(
+                        pos.x,
+                        pos.y,
+                        projectile.state.vx,
+                        -projectile.state.vy
+                    );
+                }
+            }
+        } catch (error) {
+            // Silently catch errors to prevent breaking animation
+            console.warn('Visual system update error:', error);
         }
     }
 
@@ -502,21 +507,25 @@ class Renderer {
      * Trigger launch effect
      */
     triggerLaunchEffect(angle, velocity) {
-        if (!this.particleSystem) return;
+        try {
+            if (!this.particleSystem) return;
 
-        const origin = this.worldToScreen(0, 0);
-        const power = Math.min(velocity / 20, 1.5);
+            const origin = this.worldToScreen(0, 0);
+            const power = Math.min(velocity / 20, 1.5);
 
-        this.particleSystem.launch.launch(
-            origin.x,
-            origin.y,
-            angle * Math.PI / 180,
-            power
-        );
+            this.particleSystem.launch.launch(
+                origin.x,
+                origin.y,
+                angle * Math.PI / 180,
+                power
+            );
 
-        // Clear ball trail
-        if (this.ballRenderer) {
-            this.ballRenderer.clearTrail();
+            // Clear ball trail
+            if (this.ballRenderer) {
+                this.ballRenderer.clearTrail();
+            }
+        } catch (error) {
+            console.warn('Launch effect error:', error);
         }
     }
 
@@ -524,38 +533,54 @@ class Renderer {
      * Trigger impact effect
      */
     triggerImpactEffect(x, y, velocity, angle) {
-        if (!this.particleSystem) return;
+        try {
+            if (!this.particleSystem) return;
 
-        const pos = this.worldToScreen(x, y);
-        this.particleSystem.impact.impact(pos.x, pos.y, velocity, angle);
+            const pos = this.worldToScreen(x, y);
+            this.particleSystem.impact.impact(pos.x, pos.y, velocity, angle);
+        } catch (error) {
+            console.warn('Impact effect error:', error);
+        }
     }
 
     /**
      * Trigger target hit effect
      */
     triggerTargetHitEffect(x, y, targetSize, score) {
-        if (!this.particleSystem) return;
+        try {
+            if (!this.particleSystem) return;
 
-        const pos = this.worldToScreen(x, y);
-        this.particleSystem.targetHit.hit(pos.x, pos.y, targetSize * this.scale, score);
+            const pos = this.worldToScreen(x, y);
+            this.particleSystem.targetHit.hit(pos.x, pos.y, targetSize * this.scale, score);
+        } catch (error) {
+            console.warn('Target hit effect error:', error);
+        }
     }
 
     /**
      * Trigger explosion effect
      */
     triggerExplosion(x, y, intensity = 1.0) {
-        if (!this.particleSystem) return;
+        try {
+            if (!this.particleSystem) return;
 
-        const pos = this.worldToScreen(x, y);
-        this.particleSystem.explosion.explode(pos.x, pos.y, intensity);
+            const pos = this.worldToScreen(x, y);
+            this.particleSystem.explosion.explode(pos.x, pos.y, intensity);
+        } catch (error) {
+            console.warn('Explosion effect error:', error);
+        }
     }
 
     /**
      * Draw particle system
      */
     drawParticles() {
-        if (this.particleSystem) {
-            this.particleSystem.draw(this.ctx);
+        try {
+            if (this.particleSystem) {
+                this.particleSystem.draw(this.ctx);
+            }
+        } catch (error) {
+            console.warn('Particle draw error:', error);
         }
     }
 
@@ -563,9 +588,13 @@ class Renderer {
      * Draw performance stats
      */
     drawPerformanceStats() {
-        if (this.performanceMonitor) {
-            const particleCount = this.particleSystem ? this.particleSystem.getParticleCount() : 0;
-            this.performanceMonitor.draw(this.ctx, particleCount);
+        try {
+            if (this.performanceMonitor) {
+                const particleCount = this.particleSystem ? this.particleSystem.getParticleCount() : 0;
+                this.performanceMonitor.draw(this.ctx, particleCount);
+            }
+        } catch (error) {
+            console.warn('Performance stats draw error:', error);
         }
     }
 
