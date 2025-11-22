@@ -519,3 +519,60 @@ header h1 {
 .mb-20 {
     margin-bottom: 20px;
 }
+
+/* Mobile Optimizations */
+.mobile-device .control-panel {
+    font-size: 16px; /* Prevent zoom on iOS */
+}
+
+.mobile-device input[type="range"] {
+    height: 10px; /* Larger touch targets */
+}
+
+.mobile-device .btn {
+    min-height: 44px; /* iOS recommended touch target */
+    font-size: 1.1em;
+}
+
+.mobile-device .tab-btn {
+    min-height: 48px;
+}
+
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+
+    header h1 {
+        font-size: 1.5em;
+    }
+
+    .subtitle {
+        font-size: 0.9em;
+    }
+
+    .control-panel {
+        font-size: 0.9em;
+    }
+
+    .btn {
+        padding: 10px 15px;
+        font-size: 0.9em;
+    }
+}
+
+@media (max-width: 480px) {
+    .tab-btn {
+        font-size: 0.75em;
+        padding: 10px 8px;
+    }
+
+    .predictions-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .canvas-container {
+        min-height: 300px;
+    }
+}

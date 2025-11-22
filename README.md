@@ -59,11 +59,27 @@ Then navigate to `http://localhost:8000`
 - Adjust sliders to change parameters
 - Click "Fire" to launch projectile
 - Use checkboxes to toggle features
+- Enable "Tape Measure Mode" and click-drag to measure distances
 
 ### Keyboard Shortcuts
 - `SPACE` - Fire projectile
 - `P` - Pause/Play simulation
 - `R` - Reset simulation
+- `~` (Backquote) - Toggle performance statistics overlay
+- `F` - Toggle fullscreen mode (mobile)
+
+### Mobile & Touch
+- Full touch support for all controls
+- Pinch-to-zoom on canvases
+- Swipe between tabs
+- Haptic feedback on launches and hits
+- Responsive design for all screen sizes
+
+### Save & Load
+- Click "Save Configuration" to store current settings
+- Click "Load Configuration" to restore saved setups
+- Export flight data as CSV or JSON for analysis
+- Leaderboard automatically saves top scores
 
 ## 🔬 Educational Use
 
@@ -91,8 +107,12 @@ Then navigate to `http://localhost:8000`
 
 ### Physics Implementation
 - **No Air Resistance**: Analytical solution using kinematic equations
-- **With Air Resistance**: Numerical integration using Euler method
+- **With Air Resistance**: Numerical integration using Euler method (dt = 0.016s)
 - **Drag Force**: F_d = ½ρv²C_dA (ρ=air density, C_d=drag coefficient, A=cross-sectional area)
+- **Wind Force**: Horizontal wind resistance with adjustable speed (-10 to +10 m/s)
+- **Reynolds Number**: Flow regime-dependent drag (Stokes, transitional, subcritical, supercritical)
+- **Magnus Force**: Lift force for spinning projectiles (topspin/backspin effects)
+- **Energy Conservation**: Real-time kinetic and potential energy tracking
 
 ### Code Structure
 ```
@@ -101,11 +121,17 @@ animations/
 ├── css/
 │   └── style.css      # PhET-inspired styling (9.4 KB)
 ├── js/
-│   ├── physics.js     # Physics engine with wind (7.3 KB)
+│   ├── physics.js     # Physics engine with Reynolds & Magnus (9 KB)
 │   ├── graphs.js      # Real-time graphing system (11 KB)
 │   ├── tools.js       # Measurement & export tools (12 KB)
-│   ├── ui.js          # Canvas rendering (9.1 KB)
-│   └── main.js        # Main controller (25 KB)
+│   ├── particles.js   # Particle system & effects (19 KB)
+│   ├── visuals.js     # Enhanced rendering & camera (14 KB)
+│   ├── ui.js          # Advanced canvas rendering (17 KB)
+│   ├── sound.js       # Web Audio sound effects (6 KB)
+│   ├── storage.js     # Save/load configurations (5 KB)
+│   ├── leaderboard.js # Target practice scoring (7 KB)
+│   ├── mobile.js      # Mobile touch support (8 KB)
+│   └── main.js        # Main controller (28 KB)
 ├── assets/            # Ready for images
 └── README.md          # This file
 ```
@@ -128,6 +154,7 @@ Students will be able to:
 
 ## ✅ Advanced Features (IMPLEMENTED!)
 
+### Core Simulation Features
 - [x] **Real-time position vs time graphs** - Multi-line graphs with auto-scaling
 - [x] **Velocity vs time graphs** - Vx and Vy components visualized
 - [x] **Multiple projectile comparison** - Compare up to 6 different trajectories
@@ -141,16 +168,34 @@ Students will be able to:
 - [x] **Energy tracking** - Real-time KE and PE calculations
 - [x] **Tab navigation** - 4 modes: Simulation, Graphs, Analysis, Target Practice
 
-## 🚧 Future Enhancements (v2.0)
+### v2.0 Advanced Physics & UX Features
+- [x] **Mobile touch support** - Full touch event handling, gestures, haptic feedback
+- [x] **Sound effects** - Web Audio API sounds for launches, hits, and landings
+- [x] **Save/load configurations** - Persist and restore simulation setups
+- [x] **Leaderboard system** - Top 10 scores with rankings and achievements
+- [x] **Reynolds number drag model** - Flow regime-dependent drag coefficients
+- [x] **Magnus force (spin effects)** - Lift force for spinning projectiles
+- [x] **Fullscreen mode** - Immersive mobile experience
 
-- [ ] 3D trajectory visualization
-- [ ] Mobile touch support
-- [ ] Sound effects for launches and hits
-- [ ] Save/load simulation configurations
-- [ ] Leaderboard for target practice
-- [ ] More sophisticated drag models (Reynolds number)
-- [ ] Spin effects (Magnus force)
-- [ ] Custom background images
+### v2.5 Visual Effects & Polish
+- [x] **Particle system** - 1000+ simultaneous particles with realistic physics
+- [x] **Launch effects** - Explosive bursts with fire and dust particles
+- [x] **Impact effects** - Debris spray, dust clouds, and crater visualization
+- [x] **Smoke trails** - Dynamic smoke particles following fast projectiles
+- [x] **Target hit confetti** - Celebratory particle explosions with gold sparks
+- [x] **3D ball rendering** - Realistic shadows, specular highlights, motion trails
+- [x] **Enhanced vectors** - Glowing arrows with gradients and shadows
+- [x] **Environmental effects** - Animated clouds, textured sun, grass details
+- [x] **Motion blur trails** - Velocity-based trails showing projectile path
+- [x] **Performance monitor** - Real-time FPS and particle count display (Press ~)
+- [x] **Camera system** - Auto-tracking and smooth panning (foundation for future zoom)
+
+## 🚧 Future Enhancements (v3.0)
+
+- [ ] 3D trajectory visualization with WebGL
+- [ ] Custom background images (stadium, canyon, space)
+- [ ] Multi-language support
+- [ ] Real-world scenarios (basketball, golf, artillery)
 
 ## 📝 License
 
