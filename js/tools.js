@@ -263,13 +263,14 @@ class TrajectoryPredictor {
 
             if (state.y < 0 && t > 0.01) break;
 
-            if (params.airResistance) {
+            if (params.airResistance || (params.windEnabled && params.windSpeed !== 0)) {
                 state = this.physics.integrateStep(
                     state,
                     params.mass,
                     params.diameter,
                     params.gravity,
-                    true
+                    params.airResistance,
+                    params.windEnabled ? params.windSpeed : 0
                 );
             } else {
                 state = this.physics.calculateNoAirResistance(
