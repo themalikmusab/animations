@@ -8,9 +8,14 @@ class PhysicsEngine {
         // Physical constants
         this.AIR_DENSITY = 1.225; // kg/m³ at sea level
         this.DRAG_COEFFICIENT = 0.47; // Sphere drag coefficient
+        this.AIR_VISCOSITY = 1.81e-5; // kg/(m·s) at 15°C
 
         // Time step for simulation (smaller = more accurate)
         this.dt = 0.016; // ~60 FPS
+
+        // Advanced physics options
+        this.useReynoldsDrag = false;
+        this.useMagnusForce = false;
     }
 
     /**
@@ -70,6 +75,77 @@ class PhysicsEngine {
         const windForce = 0.5 * this.AIR_DENSITY * windSpeed * Math.abs(windSpeed) *
                          this.DRAG_COEFFICIENT * area;
         return { fx: windForce, fy: 0 };
+    }
+
+    /**
+     * Calculate Reynolds number
+     * Re = ρvD/μ where ρ=density, v=velocity, D=diameter, μ=viscosity
+     * @param {number} velocity - Object velocity (m/s)
+     * @param {number} diameter - Object diameter (m)
+     * @returns {number} Reynolds number
+     */
+    calculateReynoldsNumber(velocity, diameter) {
+        return (this.AIR_DENSITY * velocity * diameter) / this.AIR_VISCOSITY;
+    }
+
+    /**
+     * Calculate drag coefficient based on Reynolds number
+     * More accurate than constant Cd
+     * @param {number} reynolds - Reynolds number
+     * @returns {number} Drag coefficient
+     */
+    getReynoldsDragCoefficient(reynolds) {
+        // Smooth sphere drag coefficient vs Reynolds number
+        if (reynolds < 1) {
+            // Stokes flow
+            return 24 / reynolds;
+        } else if (reynolds < 400) {
+            // Transitional
+            return 24 / Math.pow(reynolds, 0.646);
+        } else if (reynolds < 3e5) {
+            // Subcritical
+            return 0.5;
+        } else if (reynolds < 4e5) {
+            // Critical - drag crisis
+            return 0.2;
+        } else {
+            // Supercritical
+            return 0.3;
+        }
+    }
+
+    /**
+     * Calculate Magnus force (lift due to spin)
+     * F_magnus = (1/2) * ρ * v² * A * C_L
+     * C_L ≈ (4π * ωr) / v for spinning sphere
+     * @param {number} vx - Velocity x component
+     * @param {number} vy - Velocity y component
+     * @param {number} diameter - Diameter (m)
+     * @param {number} spinRate - Spin rate (rad/s)
+     * @returns {Object} Magnus force {fx, fy}
+     */
+    calculateMagnusForce(vx, vy, diameter, spinRate) {
+        const v = Math.sqrt(vx * vx + vy * vy);
+        if (v < 0.01) return { fx: 0, fy: 0 };
+
+        const radius = diameter / 2;
+        const area = Math.PI * radius * radius;
+
+        // Lift coefficient for spinning sphere
+        const liftCoef = (4 * Math.PI * spinRate * radius) / v;
+
+        // Magnus force magnitude
+        const magnusForce = 0.5 * this.AIR_DENSITY * v * v * area * liftCoef;
+
+        // Magnus force is perpendicular to velocity
+        // For topspin (negative spin): force is downward
+        // For backspin (positive spin): force is upward
+        const perpAngle = Math.atan2(vy, vx) + Math.PI / 2;
+
+        return {
+            fx: magnusForce * Math.cos(perpAngle),
+            fy: magnusForce * Math.sin(perpAngle)
+        };
     }
 
     /**

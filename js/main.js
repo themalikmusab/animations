@@ -47,6 +47,13 @@ class ProjectileMotionApp {
         this.targetSystem = new TargetSystem(this.renderer);
         this.targetMode = false;
 
+        // v2.0 Systems
+        this.soundEffects = new SoundEffects();
+        this.configManager = new ConfigurationManager(this);
+        this.leaderboard = new Leaderboard();
+        this.mobileSupport = new MobileSupport(this);
+        this.fullscreenManager = new FullscreenManager();
+
         // Graphs
         this.initializeGraphs();
 
@@ -59,6 +66,11 @@ class ProjectileMotionApp {
 
         // Update predictions
         this.updatePredictions();
+
+        // Enable swipe navigation on mobile
+        if (this.mobileSupport.isMobile) {
+            this.mobileSupport.enableSwipeNavigation();
+        }
     }
 
     /**
@@ -437,6 +449,10 @@ class ProjectileMotionApp {
         this.velocityGraph.clear();
         this.heightGraph.clear();
         this.dataExporter.clear();
+
+        // Play launch sound
+        this.soundEffects.playLaunch();
+        this.soundEffects.resume();
     }
 
     /**
@@ -495,15 +511,34 @@ class ProjectileMotionApp {
             for (let i = 0; i < steps; i++) {
                 this.projectiles.forEach(projectile => {
                     if (projectile) {
+                        const wasFlying = projectile.isFlying;
                         projectile.update();
+
+                        // Play land sound when projectile lands
+                        if (wasFlying && projectile.hasLanded) {
+                            this.soundEffects.playLand();
+                        }
 
                         // Check target hits
                         if (this.targetMode && projectile.isFlying) {
+                            const hitBefore = this.targetSystem.targets.filter(t => t.hit).length;
                             this.targetSystem.checkHit(
                                 projectile.state.x,
                                 projectile.state.y,
                                 projectile.diameter / 2
                             );
+                            const hitAfter = this.targetSystem.targets.filter(t => t.hit).length;
+
+                            // Play hit sound if new target was hit
+                            if (hitAfter > hitBefore) {
+                                this.soundEffects.playHit();
+                            }
+
+                            // Check if all targets hit - submit to leaderboard
+                            if (projectile.hasLanded && hitAfter === this.targetSystem.targets.length &&
+                                this.targetSystem.targets.length > 0) {
+                                this.submitToLeaderboard();
+                            }
                         }
 
                         // Record data for export
@@ -722,12 +757,43 @@ class ProjectileMotionApp {
         document.getElementById('score-display').textContent = this.targetSystem.score;
         document.getElementById('targets-hit-display').textContent = `${hitTargets} / ${totalTargets}`;
     }
+
+    /**
+     * Submit score to leaderboard (target practice mode)
+     */
+    submitToLeaderboard() {
+        if (!this.targetMode) return;
+
+        const totalTargets = this.targetSystem.targets.length;
+        const hitTargets = this.targetSystem.targets.filter(t => t.hit).length;
+        const score = this.targetSystem.score;
+
+        // Only submit if player hit at least one target
+        if (hitTargets > 0) {
+            const rank = this.leaderboard.addScore(score, hitTargets, totalTargets);
+
+            // Play appropriate sound
+            if (rank === 1) {
+                this.soundEffects.playSuccess();
+            } else if (rank > 0 && rank <= 3) {
+                this.soundEffects.playSuccess();
+            }
+        }
+
+        // Prevent multiple submissions
+        this.targetMode = false;
+        setTimeout(() => {
+            this.targetMode = true;
+        }, 1000);
+    }
 }
 
 // Initialize app when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     window.app = new ProjectileMotionApp();
-    console.log('🚀 Advanced Projectile Motion Simulator initialized!');
+    console.log('🚀 Projectile Motion Simulator v2.0 initialized!');
+    console.log('💡 New in v2.0: Mobile Support, Sound Effects, Save/Load, Leaderboard, Advanced Physics');
     console.log('💡 Features: Graphs, Wind, Targets, Multi-Projectile, Data Export, Analysis');
     console.log('💡 Shortcuts: SPACE=fire, P=pause, R=reset');
+    console.log('💡 Mobile: Swipe to change tabs, touch to measure');
 });
