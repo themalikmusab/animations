@@ -272,11 +272,28 @@ class Renderer {
      * Draw projectile with enhanced visuals
      */
     drawProjectile(projectile) {
-        if (!projectile.isFlying && !projectile.hasLanded) return;
+        if (!projectile) {
+            console.warn('drawProjectile called with null projectile');
+            return;
+        }
+
+        if (!projectile.isFlying && !projectile.hasLanded) {
+            return;
+        }
 
         const pos = this.worldToScreen(projectile.state.x, projectile.state.y);
         const radius = Math.max(5, projectile.diameter * this.scale / 2);
         const velocity = projectile.getVelocity();
+
+        // Debug: Log first few renders
+        if (projectile.time < 0.1) {
+            console.log('⚽ Drawing ball at:', {
+                world: { x: projectile.state.x, y: projectile.state.y },
+                screen: pos,
+                radius: radius,
+                isFlying: projectile.isFlying
+            });
+        }
 
         if (this.ballRenderer) {
             // Use enhanced ball renderer

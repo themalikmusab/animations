@@ -440,8 +440,16 @@ class ProjectileMotionApp {
      * Fire the projectile
      */
     fireProjectile() {
+        console.log('🚀 FIRE! Creating projectile with params:', this.params);
+
         this.createProjectile();
         this.currentProjectile.launch();
+
+        console.log('✅ Projectile created and launched:', {
+            isFlying: this.currentProjectile.isFlying,
+            position: this.currentProjectile.state,
+            velocity: this.currentProjectile.getVelocity()
+        });
 
         if (this.multiProjectileMode) {
             this.projectiles.push(this.currentProjectile);
@@ -457,8 +465,12 @@ class ProjectileMotionApp {
         this.dataExporter.clear();
 
         // Play launch sound
-        this.soundEffects.playLaunch();
-        this.soundEffects.resume();
+        try {
+            this.soundEffects.playLaunch();
+            this.soundEffects.resume();
+        } catch (error) {
+            console.warn('Sound effect error (non-critical):', error);
+        }
 
         // Trigger launch visual effect
         this.renderer.triggerLaunchEffect(this.params.angle, this.params.velocity);
@@ -647,6 +659,17 @@ class ProjectileMotionApp {
             }
 
             // Draw all projectiles
+            if (this.projectiles.length > 0 && this.projectiles[0] && this.projectiles[0].isFlying) {
+                // Debug logging (only first 10 frames)
+                if (this.projectiles[0].time < 0.16) {
+                    console.log('📊 Rendering projectiles:', {
+                        count: this.projectiles.length,
+                        currentFlying: this.currentProjectile ? this.currentProjectile.isFlying : 'none',
+                        position: this.currentProjectile ? this.currentProjectile.state : 'none'
+                    });
+                }
+            }
+
             this.projectiles.forEach(projectile => {
                 if (projectile) {
                     this.renderer.drawTrajectory(projectile, this.showTrajectory);
