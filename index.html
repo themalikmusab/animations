@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projectile Motion Simulator - PhET Style</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1>🎯 Projectile Motion Simulator</h1>
+            <p class="subtitle">Interactive Physics Simulation with Real-World Dynamics</p>
+        </header>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Control Panel (Left Side) -->
+            <aside class="control-panel">
+                <h2>Launch Parameters</h2>
+
+                <div class="control-group">
+                    <label for="velocity">Initial Velocity: <span id="velocity-value">15</span> m/s</label>
+                    <input type="range" id="velocity" min="0" max="30" value="15" step="0.5">
+                </div>
+
+                <div class="control-group">
+                    <label for="angle">Launch Angle: <span id="angle-value">45</span>°</label>
+                    <input type="range" id="angle" min="0" max="90" value="45" step="1">
+                </div>
+
+                <div class="control-group">
+                    <label for="mass">Mass: <span id="mass-value">1.0</span> kg</label>
+                    <input type="range" id="mass" min="0.1" max="10" value="1.0" step="0.1">
+                </div>
+
+                <div class="control-group">
+                    <label for="diameter">Diameter: <span id="diameter-value">0.5</span> m</label>
+                    <input type="range" id="diameter" min="0.1" max="2" value="0.5" step="0.05">
+                </div>
+
+                <div class="control-group">
+                    <label for="gravity">Gravity: <span id="gravity-value">9.81</span> m/s²</label>
+                    <select id="gravity">
+                        <option value="9.81" selected>Earth (9.81 m/s²)</option>
+                        <option value="1.62">Moon (1.62 m/s²)</option>
+                        <option value="24.79">Jupiter (24.79 m/s²)</option>
+                        <option value="3.71">Mars (3.71 m/s²)</option>
+                    </select>
+                </div>
+
+                <div class="control-group checkbox-group">
+                    <label>
+                        <input type="checkbox" id="air-resistance">
+                        Air Resistance
+                    </label>
+                </div>
+
+                <div class="control-group checkbox-group">
+                    <label>
+                        <input type="checkbox" id="show-vectors" checked>
+                        Show Vectors
+                    </label>
+                </div>
+
+                <div class="control-group checkbox-group">
+                    <label>
+                        <input type="checkbox" id="show-trajectory" checked>
+                        Show Trajectory
+                    </label>
+                </div>
+
+                <div class="button-group">
+                    <button id="fire-btn" class="btn btn-primary">🚀 Fire</button>
+                    <button id="pause-btn" class="btn btn-secondary">⏸ Pause</button>
+                    <button id="reset-btn" class="btn btn-warning">🔄 Reset</button>
+                </div>
+
+                <!-- Data Display -->
+                <div class="data-display">
+                    <h3>Flight Data</h3>
+                    <div class="data-row">
+                        <span>Time:</span>
+                        <span id="time-display">0.00 s</span>
+                    </div>
+                    <div class="data-row">
+                        <span>Range:</span>
+                        <span id="range-display">0.00 m</span>
+                    </div>
+                    <div class="data-row">
+                        <span>Height:</span>
+                        <span id="height-display">0.00 m</span>
+                    </div>
+                    <div class="data-row">
+                        <span>Max Height:</span>
+                        <span id="max-height-display">0.00 m</span>
+                    </div>
+                    <div class="data-row">
+                        <span>Velocity:</span>
+                        <span id="velocity-display">0.00 m/s</span>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Canvas Area (Right Side) -->
+            <div class="canvas-container">
+                <canvas id="simulation-canvas"></canvas>
+                <div class="canvas-info">
+                    <p>Click "Fire" to launch the projectile</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Files -->
+    <script src="js/physics.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
