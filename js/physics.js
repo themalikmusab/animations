@@ -59,15 +59,30 @@ class PhysicsEngine {
     }
 
     /**
+     * Calculate wind force
+     * @param {number} windSpeed - Wind speed (m/s, positive = tailwind)
+     * @param {number} diameter - Projectile diameter (m)
+     * @returns {Object} Wind force {fx, fy}
+     */
+    calculateWindForce(windSpeed, diameter) {
+        const area = Math.PI * (diameter / 2) ** 2;
+        // Wind force acts horizontally
+        const windForce = 0.5 * this.AIR_DENSITY * windSpeed * Math.abs(windSpeed) *
+                         this.DRAG_COEFFICIENT * area;
+        return { fx: windForce, fy: 0 };
+    }
+
+    /**
      * Numerical integration step using Euler method
      * @param {Object} state - Current state {x, y, vx, vy}
      * @param {number} mass - Mass (kg)
      * @param {number} diameter - Diameter (m)
      * @param {number} g - Gravity (m/s²)
      * @param {boolean} airResistance - Include air resistance
+     * @param {number} windSpeed - Wind speed (m/s, optional)
      * @returns {Object} New state {x, y, vx, vy}
      */
-    integrateStep(state, mass, diameter, g, airResistance) {
+    integrateStep(state, mass, diameter, g, airResistance, windSpeed = 0) {
         let ax = 0;
         let ay = -g;
 
@@ -75,6 +90,12 @@ class PhysicsEngine {
             const drag = this.calculateDragForce(state.vx, state.vy, diameter);
             ax += drag.fx / mass;
             ay += drag.fy / mass;
+        }
+
+        // Add wind force
+        if (windSpeed !== 0) {
+            const wind = this.calculateWindForce(windSpeed, diameter);
+            ax += wind.fx / mass;
         }
 
         // Euler integration
@@ -138,6 +159,7 @@ class Projectile {
         this.diameter = params.diameter;
         this.gravity = params.gravity;
         this.airResistance = params.airResistance;
+        this.windSpeed = params.windSpeed || 0;
         this.color = params.color || '#ff4444';
 
         // Initial state
@@ -181,13 +203,14 @@ class Projectile {
         }
 
         // Update physics
-        if (this.airResistance) {
+        if (this.airResistance || this.windSpeed !== 0) {
             this.state = this.physics.integrateStep(
                 this.state,
                 this.mass,
                 this.diameter,
                 this.gravity,
-                true
+                this.airResistance,
+                this.windSpeed
             );
         } else {
             this.state = this.physics.calculateNoAirResistance(

@@ -14,6 +14,14 @@
             <p class="subtitle">Interactive Physics Simulation with Real-World Dynamics</p>
         </header>
 
+        <!-- Tab Navigation -->
+        <nav class="tab-nav">
+            <button class="tab-btn active" data-tab="simulation">🚀 Simulation</button>
+            <button class="tab-btn" data-tab="graphs">📊 Graphs</button>
+            <button class="tab-btn" data-tab="analysis">📈 Analysis</button>
+            <button class="tab-btn" data-tab="target-practice">🎯 Target Practice</button>
+        </nav>
+
         <!-- Main Content -->
         <div class="main-content">
             <!-- Control Panel (Left Side) -->
@@ -50,12 +58,29 @@
                     </select>
                 </div>
 
+                <h3>Environmental Forces</h3>
+
                 <div class="control-group checkbox-group">
                     <label>
                         <input type="checkbox" id="air-resistance">
                         Air Resistance
                     </label>
                 </div>
+
+                <div class="control-group checkbox-group">
+                    <label>
+                        <input type="checkbox" id="wind-enabled">
+                        Wind Force
+                    </label>
+                </div>
+
+                <div class="control-group" id="wind-control" style="display: none;">
+                    <label for="wind-speed">Wind Speed: <span id="wind-speed-value">0</span> m/s</label>
+                    <input type="range" id="wind-speed" min="-10" max="10" value="0" step="0.5">
+                    <small style="color: #666;">Negative = headwind, Positive = tailwind</small>
+                </div>
+
+                <h3>Display Options</h3>
 
                 <div class="control-group checkbox-group">
                     <label>
@@ -71,10 +96,42 @@
                     </label>
                 </div>
 
+                <div class="control-group checkbox-group">
+                    <label>
+                        <input type="checkbox" id="show-prediction">
+                        Show Predicted Path
+                    </label>
+                </div>
+
+                <div class="control-group checkbox-group">
+                    <label>
+                        <input type="checkbox" id="tape-measure-mode">
+                        📏 Tape Measure Mode
+                    </label>
+                </div>
+
+                <h3>Simulation Controls</h3>
+
+                <div class="control-group">
+                    <label for="sim-speed">Simulation Speed: <span id="sim-speed-value">1.0</span>x</label>
+                    <input type="range" id="sim-speed" min="0.1" max="2" value="1.0" step="0.1">
+                </div>
+
                 <div class="button-group">
                     <button id="fire-btn" class="btn btn-primary">🚀 Fire</button>
                     <button id="pause-btn" class="btn btn-secondary">⏸ Pause</button>
                     <button id="reset-btn" class="btn btn-warning">🔄 Reset</button>
+                </div>
+
+                <div class="control-group checkbox-group">
+                    <label>
+                        <input type="checkbox" id="multi-projectile-mode">
+                        📦 Multi-Projectile Mode
+                    </label>
+                </div>
+
+                <div class="button-group" id="multi-projectile-controls" style="display: none;">
+                    <button id="clear-projectiles-btn" class="btn btn-secondary">Clear All Projectiles</button>
                 </div>
 
                 <!-- Data Display -->
@@ -101,13 +158,146 @@
                         <span id="velocity-display">0.00 m/s</span>
                     </div>
                 </div>
+
+                <!-- Target Practice Stats -->
+                <div class="data-display" id="target-stats" style="display: none;">
+                    <h3>Target Practice</h3>
+                    <div class="data-row">
+                        <span>Score:</span>
+                        <span id="score-display">0</span>
+                    </div>
+                    <div class="data-row">
+                        <span>Targets Hit:</span>
+                        <span id="targets-hit-display">0 / 0</span>
+                    </div>
+                    <div class="button-group">
+                        <button id="new-targets-btn" class="btn btn-primary">New Targets</button>
+                    </div>
+                </div>
+
+                <!-- Data Export -->
+                <div class="data-display">
+                    <h3>Data Export</h3>
+                    <div class="button-group">
+                        <button id="export-csv-btn" class="btn btn-secondary">📥 Export CSV</button>
+                        <button id="export-json-btn" class="btn btn-secondary">📥 Export JSON</button>
+                    </div>
+                </div>
             </aside>
 
-            <!-- Canvas Area (Right Side) -->
-            <div class="canvas-container">
-                <canvas id="simulation-canvas"></canvas>
-                <div class="canvas-info">
-                    <p>Click "Fire" to launch the projectile</p>
+            <!-- Right Side Content Area -->
+            <div class="right-content">
+                <!-- Simulation Tab -->
+                <div class="tab-content active" id="tab-simulation">
+                    <div class="canvas-container">
+                        <canvas id="simulation-canvas"></canvas>
+                        <div class="canvas-info" id="canvas-info">
+                            <p>Click "Fire" to launch the projectile | Press SPACE to fire</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Graphs Tab -->
+                <div class="tab-content" id="tab-graphs">
+                    <div class="graphs-container">
+                        <div class="graph-box">
+                            <canvas id="position-graph"></canvas>
+                        </div>
+                        <div class="graph-box">
+                            <canvas id="velocity-graph"></canvas>
+                        </div>
+                        <div class="graph-box">
+                            <canvas id="height-graph"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analysis Tab -->
+                <div class="tab-content" id="tab-analysis">
+                    <div class="analysis-container">
+                        <h2>Trajectory Analysis</h2>
+
+                        <div class="analysis-section">
+                            <h3>Theoretical Predictions (No Air Resistance)</h3>
+                            <div class="predictions-grid">
+                                <div class="prediction-item">
+                                    <strong>Maximum Range:</strong>
+                                    <span id="predicted-range">-</span> m
+                                </div>
+                                <div class="prediction-item">
+                                    <strong>Maximum Height:</strong>
+                                    <span id="predicted-height">-</span> m
+                                </div>
+                                <div class="prediction-item">
+                                    <strong>Flight Time:</strong>
+                                    <span id="predicted-time">-</span> s
+                                </div>
+                                <div class="prediction-item">
+                                    <strong>Optimal Angle:</strong>
+                                    <span>45°</span> (for max range)
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="analysis-section">
+                            <h3>Actual Results</h3>
+                            <div class="predictions-grid">
+                                <div class="prediction-item">
+                                    <strong>Actual Range:</strong>
+                                    <span id="actual-range">-</span> m
+                                </div>
+                                <div class="prediction-item">
+                                    <strong>Actual Max Height:</strong>
+                                    <span id="actual-height">-</span> m
+                                </div>
+                                <div class="prediction-item">
+                                    <strong>Actual Flight Time:</strong>
+                                    <span id="actual-time">-</span> s
+                                </div>
+                                <div class="prediction-item">
+                                    <strong>Impact Velocity:</strong>
+                                    <span id="impact-velocity">-</span> m/s
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="analysis-section">
+                            <h3>Energy Analysis</h3>
+                            <div class="predictions-grid">
+                                <div class="prediction-item">
+                                    <strong>Initial KE:</strong>
+                                    <span id="initial-ke">-</span> J
+                                </div>
+                                <div class="prediction-item">
+                                    <strong>Max PE:</strong>
+                                    <span id="max-pe">-</span> J
+                                </div>
+                                <div class="prediction-item">
+                                    <strong>Current KE:</strong>
+                                    <span id="current-ke">-</span> J
+                                </div>
+                                <div class="prediction-item">
+                                    <strong>Current PE:</strong>
+                                    <span id="current-pe">-</span> J
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="analysis-section">
+                            <h3>Comparison</h3>
+                            <canvas id="comparison-graph"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Target Practice Tab -->
+                <div class="tab-content" id="tab-target-practice">
+                    <div class="canvas-container">
+                        <canvas id="target-canvas"></canvas>
+                        <div class="canvas-info">
+                            <p>🎯 Hit the targets! Higher points for smaller targets</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -115,6 +305,8 @@
 
     <!-- JavaScript Files -->
     <script src="js/physics.js"></script>
+    <script src="js/graphs.js"></script>
+    <script src="js/tools.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/main.js"></script>
 </body>
