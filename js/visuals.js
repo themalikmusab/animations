@@ -366,8 +366,8 @@ class EnvironmentRenderer {
         ctx.restore();
     }
 
-    update(dt) {
-        this.time += dt;
+    update(dt = 1) {
+        this.time += dt * 0.016; // Convert to seconds
     }
 }
 
