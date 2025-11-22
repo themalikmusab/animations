@@ -358,6 +358,12 @@ class ProjectileMotionApp {
                 pauseBtn.textContent = this.isPaused ? '▶ Play' : '⏸ Pause';
             } else if (e.code === 'KeyR') {
                 this.reset();
+            } else if (e.code === 'Backquote') {
+                // Toggle performance stats with ~ key
+                this.renderer.togglePerformanceStats();
+                if (this.targetRenderer) {
+                    this.targetRenderer.togglePerformanceStats();
+                }
             }
         });
     }
@@ -453,6 +459,9 @@ class ProjectileMotionApp {
         // Play launch sound
         this.soundEffects.playLaunch();
         this.soundEffects.resume();
+
+        // Trigger launch visual effect
+        this.renderer.triggerLaunchEffect(this.params.angle, this.params.velocity);
     }
 
     /**
@@ -479,6 +488,13 @@ class ProjectileMotionApp {
         this.heightGraph.clear();
         this.dataExporter.clear();
         this.tapeMeasure.clear();
+
+        // Clear all particle effects
+        this.renderer.clearParticles();
+        if (this.targetRenderer) {
+            this.targetRenderer.clearParticles();
+        }
+
         this.updateDataDisplay();
         this.updateAnalysisDisplay();
     }
@@ -512,26 +528,55 @@ class ProjectileMotionApp {
                 this.projectiles.forEach(projectile => {
                     if (projectile) {
                         const wasFlying = projectile.isFlying;
+                        const lastVelocity = projectile.getVelocity();
                         projectile.update();
 
-                        // Play land sound when projectile lands
+                        // Play land sound and trigger impact effect when projectile lands
                         if (wasFlying && projectile.hasLanded) {
                             this.soundEffects.playLand();
+                            const angle = projectile.getVelocityAngle();
+                            this.renderer.triggerImpactEffect(
+                                projectile.state.x,
+                                projectile.state.y,
+                                lastVelocity,
+                                angle
+                            );
                         }
 
                         // Check target hits
                         if (this.targetMode && projectile.isFlying) {
                             const hitBefore = this.targetSystem.targets.filter(t => t.hit).length;
-                            this.targetSystem.checkHit(
-                                projectile.state.x,
-                                projectile.state.y,
-                                projectile.diameter / 2
-                            );
+                            const hitTargets = [];
+
+                            this.targetSystem.targets.forEach(target => {
+                                if (!target.hit) {
+                                    const prevHit = target.hit;
+                                    this.targetSystem.checkHit(
+                                        projectile.state.x,
+                                        projectile.state.y,
+                                        projectile.diameter / 2
+                                    );
+                                    if (!prevHit && target.hit) {
+                                        hitTargets.push(target);
+                                    }
+                                }
+                            });
+
                             const hitAfter = this.targetSystem.targets.filter(t => t.hit).length;
 
-                            // Play hit sound if new target was hit
+                            // Play hit sound and trigger visual effect if new target was hit
                             if (hitAfter > hitBefore) {
                                 this.soundEffects.playHit();
+
+                                // Trigger target hit effect for each newly hit target
+                                hitTargets.forEach(target => {
+                                    this.renderer.triggerTargetHitEffect(
+                                        target.x,
+                                        target.y,
+                                        target.radius,
+                                        target.score
+                                    );
+                                });
                             }
 
                             // Check if all targets hit - submit to leaderboard
@@ -583,9 +628,16 @@ class ProjectileMotionApp {
      * Render the simulation scene
      */
     render() {
+        // Update visual systems
+        this.renderer.update(this.currentProjectile);
+
         this.renderer.clear();
         this.renderer.drawBackground();
         this.renderer.drawGrid();
+
+        // Draw particles behind projectiles
+        this.renderer.drawParticles();
+
         this.renderer.drawCannon(this.params.angle);
 
         // Draw prediction
@@ -606,15 +658,25 @@ class ProjectileMotionApp {
 
         // Draw tape measure
         this.tapeMeasure.draw();
+
+        // Draw performance stats (if enabled)
+        this.renderer.drawPerformanceStats();
     }
 
     /**
      * Render target practice mode
      */
     renderTargetMode() {
+        // Update visual systems
+        this.targetRenderer.update(this.currentProjectile);
+
         this.targetRenderer.clear();
         this.targetRenderer.drawBackground();
         this.targetRenderer.drawGrid();
+
+        // Draw particles
+        this.targetRenderer.drawParticles();
+
         this.targetRenderer.drawCannon(this.params.angle);
 
         // Draw targets
@@ -627,6 +689,9 @@ class ProjectileMotionApp {
                 this.targetRenderer.drawProjectile(projectile);
             }
         });
+
+        // Draw performance stats
+        this.targetRenderer.drawPerformanceStats();
     }
 
     /**
@@ -791,9 +856,11 @@ class ProjectileMotionApp {
 // Initialize app when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     window.app = new ProjectileMotionApp();
-    console.log('🚀 Projectile Motion Simulator v2.0 initialized!');
-    console.log('💡 New in v2.0: Mobile Support, Sound Effects, Save/Load, Leaderboard, Advanced Physics');
-    console.log('💡 Features: Graphs, Wind, Targets, Multi-Projectile, Data Export, Analysis');
-    console.log('💡 Shortcuts: SPACE=fire, P=pause, R=reset');
+    console.log('🚀 Projectile Motion Simulator v2.5 initialized!');
+    console.log('✨ NEW: Particle Effects, Enhanced Rendering, 3D Shadows, Motion Trails');
+    console.log('💡 v2.0 Features: Mobile Support, Sound Effects, Save/Load, Leaderboard, Advanced Physics');
+    console.log('💡 Core: Graphs, Wind, Targets, Multi-Projectile, Data Export, Analysis');
+    console.log('💡 Shortcuts: SPACE=fire, P=pause, R=reset, ~ =toggle performance stats');
     console.log('💡 Mobile: Swipe to change tabs, touch to measure');
+    console.log('🎨 Visual Effects: Launch bursts, impact explosions, target confetti, smoke trails');
 });

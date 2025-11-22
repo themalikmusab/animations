@@ -65,6 +65,7 @@ Then navigate to `http://localhost:8000`
 - `SPACE` - Fire projectile
 - `P` - Pause/Play simulation
 - `R` - Reset simulation
+- `~` (Backquote) - Toggle performance statistics overlay
 - `F` - Toggle fullscreen mode (mobile)
 
 ### Mobile & Touch
@@ -123,12 +124,14 @@ animations/
 │   ├── physics.js     # Physics engine with Reynolds & Magnus (9 KB)
 │   ├── graphs.js      # Real-time graphing system (11 KB)
 │   ├── tools.js       # Measurement & export tools (12 KB)
-│   ├── ui.js          # Canvas rendering (9.1 KB)
+│   ├── particles.js   # Particle system & effects (19 KB)
+│   ├── visuals.js     # Enhanced rendering & camera (14 KB)
+│   ├── ui.js          # Advanced canvas rendering (17 KB)
 │   ├── sound.js       # Web Audio sound effects (6 KB)
 │   ├── storage.js     # Save/load configurations (5 KB)
 │   ├── leaderboard.js # Target practice scoring (7 KB)
 │   ├── mobile.js      # Mobile touch support (8 KB)
-│   └── main.js        # Main controller (26 KB)
+│   └── main.js        # Main controller (28 KB)
 ├── assets/            # Ready for images
 └── README.md          # This file
 ```
@@ -173,6 +176,19 @@ Students will be able to:
 - [x] **Reynolds number drag model** - Flow regime-dependent drag coefficients
 - [x] **Magnus force (spin effects)** - Lift force for spinning projectiles
 - [x] **Fullscreen mode** - Immersive mobile experience
+
+### v2.5 Visual Effects & Polish
+- [x] **Particle system** - 1000+ simultaneous particles with realistic physics
+- [x] **Launch effects** - Explosive bursts with fire and dust particles
+- [x] **Impact effects** - Debris spray, dust clouds, and crater visualization
+- [x] **Smoke trails** - Dynamic smoke particles following fast projectiles
+- [x] **Target hit confetti** - Celebratory particle explosions with gold sparks
+- [x] **3D ball rendering** - Realistic shadows, specular highlights, motion trails
+- [x] **Enhanced vectors** - Glowing arrows with gradients and shadows
+- [x] **Environmental effects** - Animated clouds, textured sun, grass details
+- [x] **Motion blur trails** - Velocity-based trails showing projectile path
+- [x] **Performance monitor** - Real-time FPS and particle count display (Press ~)
+- [x] **Camera system** - Auto-tracking and smooth panning (foundation for future zoom)
 
 ## 🚧 Future Enhancements (v3.0)
 
